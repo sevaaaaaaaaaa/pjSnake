@@ -18,8 +18,7 @@ class Game:
         self.snake = Snake()
         self.food = Food()
         self.sound_manager = SoundManager()
-        self.difficulty = "medium"
-        self.game_state = "menu"
+        self.game_state = "menu"  # Начинаем сразу с игры
         self.running = True
         self.high_score = 0
         
@@ -54,14 +53,7 @@ class Game:
                         self.show_menu()
                         
                 elif self.game_state == "menu":
-                    if event.key == pygame.K_1:
-                        self.difficulty = "easy"
-                        self.start_game()
-                    elif event.key == pygame.K_2:
-                        self.difficulty = "medium"
-                        self.start_game()
-                    elif event.key == pygame.K_3:
-                        self.difficulty = "hard"
+                    if event.key == pygame.K_SPACE:
                         self.start_game()
                     elif event.key == pygame.K_ESCAPE:
                         self.running = False
@@ -103,46 +95,23 @@ class Game:
         self.game_state = "game_over"
         self.high_score = max(self.high_score, self.snake.score)
         
-    def get_game_speed(self):
-        """Получить скорость игры"""
-        return DIFFICULTY[self.difficulty]
-        
     def draw_menu(self):
-        """Отрисовка меню с новым стилем"""
+        """Отрисовка меню"""
         self.screen.fill(BACKGROUND_COLOR)
         self.draw_grid()
         
-        # Полупрозрачный фон для текста
-        text_bg = pygame.Surface((600, 400), pygame.SRCALPHA)
-        text_bg.fill((0, 0, 0, 150))
-        self.screen.blit(text_bg, (SCREEN_WIDTH//2 - 300, 150))
-        
-        # Заголовок с тенью
-        title_shadow = self.title_font.render('NEON SNAKE', True, (0, 0, 0))
-        title = self.title_font.render('NEON SNAKE', True, SNAKE_COLOR)
-        self.screen.blit(title_shadow, (SCREEN_WIDTH//2 - title.get_width()//2 + 3, 183))
-        self.screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 180))
-        
-        # Опции меню
+
+
         options = [
-            '1 - ЛЕГКИЙ УРОВЕНЬ',
-            '2 - СРЕДНИЙ УРОВЕНЬ',
-            '3 - СЛОЖНЫЙ УРОВЕНЬ',
-            'ESC - ВЫХОД'
+            'ПРОБЕЛ - НАЧАТЬ ИГРУ',
+            'УПРАВЛЕНИЕ: WASD или СТРЕЛКИ',
+            'ESC - ПАУЗА/ВЫХОД'
         ]
         
         for i, option in enumerate(options):
             text = self.font.render(option, True, TEXT_COLOR)
             self.screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, 280 + i * 50))
-        
-        # Рисуем маленькую змейку для демонстрации
-        demo_positions = [(SCREEN_WIDTH//2 + 100, 300), 
-                         (SCREEN_WIDTH//2 + 75, 300), 
-                         (SCREEN_WIDTH//2 + 50, 300)]
-        for pos in demo_positions:
-            rect = pygame.Rect(pos, (GRID_SIZE-2, GRID_SIZE-2))
-            pygame.draw.rect(self.screen, SNAKE_COLOR, rect, border_radius=5)
-        
+             
     def draw_playing(self):
         """Отрисовка игрового процесса"""
         self.screen.fill(BACKGROUND_COLOR)
@@ -150,46 +119,28 @@ class Game:
         self.snake.draw(self.screen)
         self.food.draw(self.screen)
         
-        # Панель статистики
-        stats_bg = pygame.Surface((200, 90), pygame.SRCALPHA)
+        stats_bg = pygame.Surface((200, 60), pygame.SRCALPHA)
         stats_bg.fill((0, 0, 0, 100))
         self.screen.blit(stats_bg, (10, 10))
         
         score_text = self.font.render(f'СЧЕТ: {self.snake.score}', True, TEXT_COLOR)
-        diff_text = self.font.render(f'УРОВЕНЬ: {self.difficulty.upper()}', True, TEXT_COLOR)
         length_text = self.font.render(f'ДЛИНА: {self.snake.length}', True, TEXT_COLOR)
         
         self.screen.blit(score_text, (20, 20))
-        self.screen.blit(diff_text, (20, 50))
-        self.screen.blit(length_text, (20, 80))
+        self.screen.blit(length_text, (20, 50))
         
     def draw_game_over(self):
         """Отрисовка экрана завершения игры"""
         self.screen.fill(BACKGROUND_COLOR)
         self.draw_grid()
         
-        # Полупрозрачный фон
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150))
-        self.screen.blit(overlay, (0, 0))
         
-        # Текст "ИГРА ОКОНЧЕНА"
         game_over_shadow = self.big_font.render('ИГРА ОКОНЧЕНА', True, (0, 0, 0))
         game_over = self.big_font.render('ИГРА ОКОНЧЕНА', True, GAME_OVER_COLOR)
         self.screen.blit(game_over_shadow, (SCREEN_WIDTH//2 - game_over.get_width()//2 + 3, 203))
         self.screen.blit(game_over, (SCREEN_WIDTH//2 - game_over.get_width()//2, 200))
         
-        # Статистика
-        score = self.font.render(f'Ваш счет: {self.snake.score}', True, TEXT_COLOR)
-        high_score = self.font.render(f'Рекорд: {self.high_score}', True, TEXT_COLOR)
-        restart = self.font.render('ПРОБЕЛ - Новая игра', True, TEXT_COLOR)
-        menu = self.font.render('ESC - Меню', True, TEXT_COLOR)
-        
-        self.screen.blit(score, (SCREEN_WIDTH//2 - score.get_width()//2, 280))
-        self.screen.blit(high_score, (SCREEN_WIDTH//2 - high_score.get_width()//2, 320))
-        self.screen.blit(restart, (SCREEN_WIDTH//2 - restart.get_width()//2, 380))
-        self.screen.blit(menu, (SCREEN_WIDTH//2 - menu.get_width()//2, 420))
-        
+               
     def draw(self):
         """Отрисовка игры"""
         if self.game_state == "menu":
@@ -207,4 +158,4 @@ class Game:
             self.handle_events()
             self.update()
             self.draw()
-            self.clock.tick(self.get_game_speed())
+            self.clock.tick(GAME_SPEED)  
